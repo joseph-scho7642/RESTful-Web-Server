@@ -3,17 +3,21 @@
     "version": "0.0.0",
     "description": "RESTful API Server using Node JS",
     "author": {
-        "name": "",
-        "email": ""
+        "name": "Joseph Schoen",
+        "email": "scho7642@stthomas.edu"
     },
     "contributors": [
         {
-            "name": "",
-            "email": ""
+            "name": "Hayden Richards",
+            "email": "rich7524@stthomas.edu"
         },
         {
-            "name": "",
-            "email": ""
+            "name": "Tara Sothy",
+            "email": "tara.sothy@stthomas.edu"
+        },
+        {
+            "name": "Audrey Jenkins",
+            "email": "audrey.jenkins@stthomas.edu"
         }
     ],
     "main": "server.js",
