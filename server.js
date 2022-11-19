@@ -28,6 +28,23 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+
+    let query = '';
+
+    db.all(query, codes, (err, rows) => { 
+        
+        if(rows.length == 0){
+            //Throw error
+        }
+
+
+        //Table
+        codes_table = '';
+        for(i=0; i<rows.length; i++){
+            //Add in codes_table stuff
+        }
+
+    });
     
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
@@ -35,7 +52,7 @@ app.get('/codes', (req, res) => {
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
-    
+
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
