@@ -29,22 +29,31 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
-    let query = '';
-
-    db.all(query, codes, (err, rows) => { 
-        
-        if(rows.length == 0){
-            //Throw error
+    function parseQueryString(q_string){
+        let key_values = q_string.substring(1).split('&');
+        let i;
+        let query_obj = {};
+        for(i = 0; i < key_values.length; i++){
+            let key_val = key_values[i].split('=');
+            console.log(key_val);
+            query_obj[key_val[0]] = key_val[1];
         }
+        return query_obj;
+    }
 
 
-        //Table
-        codes_table = '';
-        for(i=0; i<rows.length; i++){
-            //Add in codes_table stuff
-        }
 
-    });
+    let query = 'SELECT * FROM Codes'; //WHERE code > value
+    //Get limit
+    //query = ' WHERE code > query_obj[0]' // Something along these lines
+
+    databaseSelect(query, [])
+    .then((data) =>{
+        res.send(data);
+    })
+    .catch((err) => {
+        res.send('Error ', err);
+    })
     
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
@@ -53,6 +62,17 @@ app.get('/codes', (req, res) => {
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
+    let query = 'SELECT * FROM Neighborhoods'; //WHERE code > value
+
+    let range = document.getElementById()
+    databaseSelect(query, [])
+    .then((data) =>{
+        res.send(data);
+    })
+    .catch((err) => {
+        res.send('Error ', err);
+    })
+
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
@@ -60,6 +80,16 @@ app.get('/neighborhoods', (req, res) => {
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
+    let query = 'SELECT * FROM Incidents'; //WHERE code > value
+
+    databaseSelect(query, [])
+    .then((data) =>{
+        res.send(data);
+    })
+    .catch((err) => {
+        res.send('Error ', err);
+    })
+
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
@@ -67,6 +97,16 @@ app.get('/incidents', (req, res) => {
 app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
+    let query = 'SELECT * FROM Codes'; //WHERE code > value
+
+    databaseSelect(query, [])
+    .then((data) =>{
+        res.send(data);
+    })
+    .catch((err) => {
+        res.send('Error ', err);
+    })
+
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
 
@@ -74,6 +114,16 @@ app.put('/new-incident', (req, res) => {
 app.delete('/remove-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
+    let query = 'SELECT * FROM Codes'; //WHERE code > value
+
+    databaseSelect(query, [])
+    .then((data) =>{
+        res.send(data);
+    })
+    .catch((err) => {
+        res.send('Error ', err);
+    })
+
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
 
