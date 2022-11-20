@@ -29,13 +29,23 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
+    let query = 'SELECT * FROM Codes'; //WHERE code > value
+
+    // Parse the Query string for all the parameters
     function parseQueryString(q_string){
         let key_values = q_string.substring(1).split('&');
         let i;
+
+        let code = " WHERE code = ";
+        query = query + code + key_values[1] //This may not work, but hard coded for code
+
+
+
         let query_obj = {};
         for(i = 0; i < key_values.length; i++){
             let key_val = key_values[i].split('=');
             console.log(key_val);
+            //We could put in the query parameters, so like if the user put in ?LIMIT=10, we could see in this with an if statement for it being LIMIT, and inside add on to the query LIMIT value
             query_obj[key_val[0]] = key_val[1];
         }
         return query_obj;
@@ -43,13 +53,16 @@ app.get('/codes', (req, res) => {
 
 
 
-    let query = 'SELECT * FROM Codes'; //WHERE code > value
+
+
+
+    //let query = 'SELECT * FROM Codes'; //WHERE code > value
     //Get limit
-    //query = ' WHERE code > query_obj[0]' // Something along these lines
+    //query = ' WHERE code > query_obj[0]' // Something along these lines, but injection is different
 
     databaseSelect(query, [])
     .then((data) =>{
-        res.send(data);
+        res.status(200).type('json').send(data);
     })
     .catch((err) => {
         res.send('Error ', err);
@@ -97,7 +110,7 @@ app.get('/incidents', (req, res) => {
 app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
-    let query = 'SELECT * FROM Codes'; //WHERE code > value
+    let query = ''; //Insert: case_number, see if that that case number does not exist, then add date_time, code, incident, police_grid, neighborhood_number, block
 
     databaseSelect(query, [])
     .then((data) =>{
@@ -114,7 +127,7 @@ app.put('/new-incident', (req, res) => {
 app.delete('/remove-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
-    let query = 'SELECT * FROM Codes'; //WHERE code > value
+    let query = ''; //Find the case number, and remove that entry
 
     databaseSelect(query, [])
     .then((data) =>{
