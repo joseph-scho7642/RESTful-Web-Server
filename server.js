@@ -159,7 +159,7 @@ app.get('/incidents', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type('txt').send('Error ', err);
+        res.status(200).type('html').send('Error ', err);
     })
 });
 
@@ -175,15 +175,54 @@ app.put('/new-incident', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type(txt).send('Error ', err);
+        res.status(200).type('txt').send('Error ', err);
     })
 });
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
     console.log(req.body); // uploaded data
+
     
-    let query = ''; //Find the case number, and remove that entry
+    let query = 'DELETE FROM Incidents '; //Find the case number, and remove that entry
+    let input = ' WHERE case_number = '
+
+    for([key, value] of Object.entries(req.query)){
+        if(key == "case_number"){
+            let values = value.split(",");
+            for(i=0; i<values.length; i++){
+                query = query + input + values[i];
+                //If there is more than one code contraint
+                input = " OR case_number = ";
+            }
+        }
+    }
+
+
+    let query2 = 'SELECT case_number FROM Incidents ' 
+    let input2 = " WHERE case_number = "
+
+    for([key, value] of Object.entries(req.query)){
+        if(key == "case_number"){
+            let values = value.split(",");
+            for(i=0; i<values.length; i++){
+                query = query + input2 + values[i];
+                //If there is more than one code contraint
+                input = " OR case_number = ";
+            }
+        }
+    }
+
+    databaseSelect(query2, [])
+    .then((data) =>{
+        console.log(data);
+        if(data != null){
+            //Nothing happens, entry exists  
+        } else{
+            res.status(200).type('html').send('STATUS 500: REJECTED! Please provide a incident number that is a valid entry. Ex. ?case_number = 14174007');    
+        }
+    })
+
 
     databaseSelect(query, [])
     .then((data) =>{
@@ -191,7 +230,7 @@ app.delete('/remove-incident', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type(txt).send('Error ', err);
+        res.status(200).type('html').send('STATUS 500: REJECTED! Please provide a incident number that is a valid entry. Ex. ?case_number = 14174007');
     })
 });
 
