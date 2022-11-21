@@ -98,7 +98,7 @@ app.get('/neighborhoods', (req, res) => {
             let values = value.split(",");
             for(i=0; i<values.length; i++){
                 query = query + input + values[i];
-                //If there is more than one code contraint
+                //If there is more than one neighborhood contraint
                 input = " OR neighborhood_number = ";
             }
         }
@@ -124,10 +124,10 @@ app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
     let query = 'SELECT * FROM Incidents'; //WHERE code > value
-    let input = " WHERE "
+    let input = " WHERE ("
 
     //Currently hard coded limit
-    let limit = 10
+    let limit = 1000
 
     for([key, value] of Object.entries(req.query)){
         if(key == "code"){
@@ -137,19 +137,43 @@ app.get('/incidents', (req, res) => {
                 //If there is more than one code contraint
                 input = " OR ";
             }
+            input = ") AND ("
         }
         else if(key == "id"){
             let values = value.split(",");
             for(i=0; i<values.length; i++){
                 query = query + input + "neighborhood_number = " + values[i];
-                //If there is more than one code contraint
+                //If there is more than one neighborhood contraint
                 input = " OR ";
             }
+            input = ") AND ("
+        }
+        else if(key == 'grid'){
+            let values = value.split(",");
+            for(i=0; i<values.length; i++){
+                query = query + input + "police_grid = " + values[i];
+                //If there is more than one grid contraint
+                input = " OR ";
+            }
+            input = ") AND ("
+        }
+        else if(key == 'limit'){
+            let values = value.split(",");
+            for(i=0; i<values.length; i++){
+                limit = values[i]
+            }
+        }
+        else if(key == 'start_date'){
+
+        }
+        else if(key == 'end_date'){
+
         }
     }
 
+
     //Sort by the case number
-    query = query + " Order by case_number ASC ";
+    query = query + ") Order by case_number ASC ";
     // Set the limit
     query = query + " LIMIT " + limit
 
@@ -172,13 +196,12 @@ app.put('/new-incident', (req, res) => {
 
     databaseSelect(query, [])
     .then((data) =>{
-        res.send(data);
+        console.log(data);
+        res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.send('Error ', err);
+        res.status(200).type(txt).send('Error ', err);
     })
-
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
 
 // DELETE request handler for new crime incident
@@ -189,15 +212,13 @@ app.delete('/remove-incident', (req, res) => {
 
     databaseSelect(query, [])
     .then((data) =>{
-        res.send(data);
+        console.log(data);
+        res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.send('Error ', err);
+        res.status(200).type(txt).send('Error ', err);
     })
-
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
-
 
 // Create Promise for SQLite3 database SELECT query 
 function databaseSelect(query, params) {
