@@ -43,31 +43,6 @@ app.get('/codes', (req, res) => {
         }
     }
 
-
-    /*
-
-    I don't think this is the strat, use the one above
-
-    // Parse the Query string for all the parameters
-    function parseQueryString(q_string){
-        let key_values = q_string.substring(1).split('&');
-        let i;
-
-        let code = " WHERE code = ";
-        query = query + code + key_values[1] //This may not work, but hard coded for code
-
-
-
-        let query_obj = {};
-        for(i = 0; i < key_values.length; i++){
-            let key_val = key_values[i].split('=');
-            console.log(key_val);
-            //We could put in the query parameters, so like if the user put in ?LIMIT=10, we could see in this with an if statement for it being LIMIT, and inside add on to the query LIMIT value
-            query_obj[key_val[0]] = key_val[1];
-        }
-        return query_obj;
-    }*/
-
     //Does limit matter in these statements? How does that work
     //Finally, set the ordering
     query = query + " Order by code";
@@ -82,7 +57,7 @@ app.get('/codes', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type(html).send('Error ', err);
+        res.status(200).type('html').send('Error ', err);
     })
 });
 
@@ -114,7 +89,7 @@ app.get('/neighborhoods', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type(txt).send('Error ', err);
+        res.status(200).type('txt').send('Error ', err);
     })
 
 });
@@ -184,7 +159,7 @@ app.get('/incidents', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type(txt).send('Error ', err);
+        res.status(200).type('txt').send('Error ', err);
     })
 });
 
