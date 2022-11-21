@@ -29,7 +29,24 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
-    let query = 'SELECT * FROM Codes'; //WHERE code > value
+    let query = 'SELECT * FROM Codes'; 
+    let input = " WHERE code ="; //WHERE code = value to get that exact code information
+
+    for([key, value] of Object.entries(req.query)){
+        if(key == "code"){
+            let values = value.split(",");
+            for(i=0; i<values.length; i++){
+                query = query + input + values[i];
+                //If there is more than one code contraint
+                input = " OR code = ";
+            }
+        }
+    }
+
+
+    /*
+
+    I don't think this is the strat, use the one above
 
     // Parse the Query string for all the parameters
     function parseQueryString(q_string){
@@ -49,44 +66,57 @@ app.get('/codes', (req, res) => {
             query_obj[key_val[0]] = key_val[1];
         }
         return query_obj;
-    }
+    }*/
+
+    //Does limit matter in these statements? How does that work
+    //Finally, set the ordering
+    query = query + " Order by code";
 
 
+    
 
-
-
-
-    //let query = 'SELECT * FROM Codes'; //WHERE code > value
-    //Get limit
-    //query = ' WHERE code > query_obj[0]' // Something along these lines, but injection is different
 
     databaseSelect(query, [])
     .then((data) =>{
+        console.log(data);
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.send('Error ', err);
+        res.status(200).type(html).send('Error ', err);
     })
-    
-    res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
-    let query = 'SELECT * FROM Neighborhoods'; //WHERE code > value
+    let query = 'SELECT * FROM Neighborhoods'; 
+    let input = " WHERE neighborhood_number = "; //WHERE code = value to get that exact code information
 
-    let range = document.getElementById()
+    for([key, value] of Object.entries(req.query)){
+        if(key == "id"){
+            let values = value.split(",");
+            for(i=0; i<values.length; i++){
+                query = query + input + values[i];
+                //If there is more than one code contraint
+                input = " OR neighborhood_number = ";
+            }
+        }
+    }
+
+    //Sort from low to high neighborhood_number
+    query = query + " Order by neighborhood_number ASC";
+
+    //let range = document.getElementById()
     databaseSelect(query, [])
     .then((data) =>{
-        res.send(data);
+        console.log(data);
+        res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.send('Error ', err);
+        res.status(200).type(txt).send('Error ', err);
     })
 
-    res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
 // GET request handler for crime incidents
@@ -94,16 +124,44 @@ app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
     let query = 'SELECT * FROM Incidents'; //WHERE code > value
+    let input = " WHERE "
+
+    //Currently hard coded limit
+    let limit = 10
+
+    for([key, value] of Object.entries(req.query)){
+        if(key == "code"){
+            let values = value.split(",");
+            for(i=0; i<values.length; i++){
+                query = query + input + "code = " + values[i];
+                //If there is more than one code contraint
+                input = " OR ";
+            }
+        }
+        else if(key == "id"){
+            let values = value.split(",");
+            for(i=0; i<values.length; i++){
+                query = query + input + "neighborhood_number = " + values[i];
+                //If there is more than one code contraint
+                input = " OR ";
+            }
+        }
+    }
+
+    //Sort by the case number
+    query = query + " Order by case_number ASC ";
+    // Set the limit
+    query = query + " LIMIT " + limit
+
 
     databaseSelect(query, [])
     .then((data) =>{
-        res.send(data);
+        console.log(data);
+        res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.send('Error ', err);
+        res.status(200).type(txt).send('Error ', err);
     })
-
-    res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
 // PUT request handler for new crime incident
