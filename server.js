@@ -167,16 +167,68 @@ app.get('/incidents', (req, res) => {
 app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
-    let query = ''; //Insert: case_number, see if that that case number does not exist, then add date_time, code, incident, police_grid, neighborhood_number, block
+    //Insert: case_number, see if that that case number does not exist, then add date_time, code, incident, police_grid, neighborhood_number, block
+    let params = [];
+    let get = '';
+    let put = '';
+    if(req.query.hasOwnProperty('case')) {
+        get = 'SELECT * FROM Incidents WHERE case = ?';
+        put = 'INSERT INTO Tncidents VALUES (' + req.query.case;
 
-    databaseSelect(query, [])
+        params.push(req.query.case);
+        if(req.query.hasOwnProperty('date') && req.query.hasOwnProperty('time')){
+            put += ', ' + req.query.date + req.query.time;
+            params.push(req.query.date);
+            params.push(req.query.time);
+        }
+        if(req.query.hasOwnProperty('code')){
+            put += ", " + req.query.code;
+            params.push(req.query.code);
+        }
+        if(req.query.hasOwnProperty('incident')){
+            put += ", " + req.query.incident;
+            params.push(req.query.incident);
+        }
+        if(req.query.hasOwnProperty('police_grid')){
+            put += ", " + req.query.police_grid;
+            params.push(req.query.date);
+        }
+        if(req.query.hasOwnProperty('neighborhood_number')){
+            put += ", " + req.query.neighborhood_number;
+            params.push(req.query.neighborhood_number);
+        }
+        if(req.query.hasOwnProperty('block')){
+            put += ", " + req.query.block;
+            params.push(req.query.block);
+        }
+        put += ');';
+        if(params.length!= 8){
+            //must provide all fields: case, date, time, code, incident, police_grid, incident_number, and block
+        }
+
+    } else {
+        //throw error and say must provide case number
+    }
+
+    databaseSelect(get, [])
     .then((data) =>{
         console.log(data);
-        res.status(200).type('json').send(data);
+        //if not already in table add it
+        // databaseRun(put, [])
+        // .then((data) =>{
+        //     console.log(data);
+        //     res.status(200).type('json').send(data);
+        // })
+        // .catch((err) => {
+        //     res.status(200).type('txt').send('Failed to add new incident ', err);
+        // })
+
     })
     .catch((err) => {
-        res.status(200).type('txt').send('Error ', err);
+        res.status(200).type('txt').send('Could not perform get request to find case number', err);
     })
+
+
 });
 
 // DELETE request handler for new crime incident
