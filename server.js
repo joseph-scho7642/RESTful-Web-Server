@@ -139,10 +139,11 @@ app.get('/incidents', (req, res) => {
             }
         }
         else if(key == 'start_date'){
-
+            query = query + input + "date(date_time) >= " + "'" +  value + "'";
+            input = ") AND (";
         }
         else if(key == 'end_date'){
-
+            query = query + input + "date(date_time) <= "  + "'" +  value + "'";
         }
     }
 
@@ -150,11 +151,14 @@ app.get('/incidents', (req, res) => {
     //Sort by the case number
     query = query + ") Order by case_number ASC ";
     // Set the limit
-    query = query + " LIMIT " + limit
+    query = query + " LIMIT " + limit;
 
 
     databaseSelect(query, [])
     .then((data) =>{
+        data.forEach((item) => item["date"] = item.date_time.substring(0, 10)); 
+        data.forEach((item) => item["time"] = item.date_time.substring(11)); 
+        data.forEach((item) => delete item["date_time"]); 
         console.log(data);
         res.status(200).type('json').send(data);
     })
