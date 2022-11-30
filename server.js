@@ -235,7 +235,7 @@ app.put('/new-incident', (req, res) => {
                 res.status(500).type('txt').send('Failed to add new incident ', err);
             })
         } else {
-            res.status(200).type('txt').send('Incident with case number has already been added.');
+            res.status(500).type('txt').send('Incident with case number has already been added.');
         }
 
     })
