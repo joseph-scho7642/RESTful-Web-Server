@@ -57,7 +57,7 @@ app.get('/codes', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type('html').send('Error ', err);
+        res.status(200).type('html').send('Error! Invalid code, try codes?code=110');
     })
 });
 
@@ -66,11 +66,14 @@ app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     let query = 'SELECT * FROM Neighborhoods'; 
-    let input = " WHERE neighborhood_number = "; //WHERE code = value to get that exact code information
+    let input = " WHERE neighborhood_number ="; //WHERE code = value to get that exact code information
 
     for([key, value] of Object.entries(req.query)){
         if(key == "id"){
             let values = value.split(",");
+
+            console.log("Lets go!")
+
             for(i=0; i<values.length; i++){
                 query = query + input + values[i];
                 //If there is more than one neighborhood contraint
@@ -89,7 +92,7 @@ app.get('/neighborhoods', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type('txt').send('Error ', err);
+        res.status(200).type('txt').send('Error! Invalid neighborhood number, try neighborhoods?neighborhood_number=1');
     })
 
 });
@@ -163,7 +166,7 @@ app.get('/incidents', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type('html').send('Error ', err);
+        res.status(200).type('html').send('Error! Try typing in incidents?grid=5&limit=10');
     })
 });
 
@@ -179,7 +182,7 @@ app.put('/new-incident', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type('txt').send('Error ', err);
+        res.status(200).type('txt').send('Error ');
     })
 });
 
