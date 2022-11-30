@@ -57,7 +57,7 @@ app.get('/codes', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type('html').send('Error ', err);
+        res.status(200).type('html').send('Error! Invalid code, try codes?code=110');
     })
 });
 
@@ -69,7 +69,7 @@ app.get('/neighborhoods', (req, res) => {
     let input = " WHERE neighborhood_number = "; //WHERE code = value to get that exact code information
 
     for([key, value] of Object.entries(req.query)){
-        if(key == "id"){
+        if(key == "neighborhood_number"){
             let values = value.split(",");
             for(i=0; i<values.length; i++){
                 query = query + input + values[i];
@@ -89,7 +89,7 @@ app.get('/neighborhoods', (req, res) => {
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type('txt').send('Error ', err);
+        res.status(200).type('txt').send('Error! Invalid neighborhood number, try neighborhoods?neighborhood_number=1');
     })
 
 });
@@ -114,7 +114,7 @@ app.get('/incidents', (req, res) => {
             }
             input = ") AND ("
         }
-        else if(key == "id"){
+        else if(key == "neighborhood_number"){
             let values = value.split(",");
             for(i=0; i<values.length; i++){
                 query = query + input + "neighborhood_number = " + values[i];
@@ -139,10 +139,11 @@ app.get('/incidents', (req, res) => {
             }
         }
         else if(key == 'start_date'){
-
+            query = query + input + "date(date_time) >= " + "'" +  value + "'";
+            input = ") AND (";
         }
         else if(key == 'end_date'){
-
+            query = query + input + "date(date_time) <= "  + "'" +  value + "'";
         }
     }
 
@@ -150,16 +151,19 @@ app.get('/incidents', (req, res) => {
     //Sort by the case number
     query = query + ") Order by case_number ASC ";
     // Set the limit
-    query = query + " LIMIT " + limit
+    query = query + " LIMIT " + limit;
 
 
     databaseSelect(query, [])
     .then((data) =>{
+        data.forEach((item) => item["date"] = item.date_time.substring(0, 10)); 
+        data.forEach((item) => item["time"] = item.date_time.substring(11)); 
+        data.forEach((item) => delete item["date_time"]); 
         console.log(data);
         res.status(200).type('json').send(data);
     })
     .catch((err) => {
-        res.status(200).type('html').send('Error ', err);
+        res.status(200).type('html').send('Error! Try typing in incidents?grid=5&limit=10');
     })
 });
 
@@ -262,6 +266,7 @@ app.delete('/remove-incident', (req, res) => {
     }
 
 
+    // Query and Input 2 to check if the case_number exists, and if not, we need to send a STATUS 500
     let query2 = 'SELECT case_number FROM Incidents ' 
     let input2 = " WHERE case_number = "
 
@@ -269,32 +274,34 @@ app.delete('/remove-incident', (req, res) => {
         if(key == "case_number"){
             let values = value.split(",");
             for(i=0; i<values.length; i++){
-                query = query + input2 + values[i];
-                //If there is more than one code contraint
+                query2 = query2 + input2 + values[i];
+                //If there is more than one case_number contraint
                 input = " OR case_number = ";
             }
         }
     }
 
+    //Test for if the case_number exists, if it does, do the rest of the work, otherwise, send error
     databaseSelect(query2, [])
     .then((data) =>{
         console.log(data);
-        if(data != null){
-            //Nothing happens, entry exists  
-        } else{
-            res.status(200).type('html').send('STATUS 500: REJECTED! Please provide a incident number that is a valid entry. Ex. ?case_number = 14174007');    
+        //If the query did not find any results for the case_number value existing, go to else, if it is not 0 and found a value, delete the value.
+        if(data != 0){
+            databaseSelect(query, [])
+            .then((data) =>{
+                console.log(data);
+                res.status(200).type('json').send(data);
+            })
+            .catch((err) => {
+                res.status(200).type('html').send('REJECTED! Please provide a incident number that is a valid entry. Ex. ?case_number = 14174007');
+            })
+        } 
+        //If the entry does not exist, send a STATUS 500
+        else{
+            res.status(200).type('html').send('STATUS 500: REJECTED! Not a valid entry.');    
         }
     })
 
-
-    databaseSelect(query, [])
-    .then((data) =>{
-        console.log(data);
-        res.status(200).type('json').send(data);
-    })
-    .catch((err) => {
-        res.status(200).type('html').send('STATUS 500: REJECTED! Please provide a incident number that is a valid entry. Ex. ?case_number = 14174007');
-    })
 });
 
 // Create Promise for SQLite3 database SELECT query 
