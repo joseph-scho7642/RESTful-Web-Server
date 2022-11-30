@@ -240,7 +240,7 @@ app.put('/new-incident', (req, res) => {
 
     })
     .catch((err) => {
-         res.status(500).type('txt').send('Could not perform get request to find case number', err);
+         res.status(500).type('txt').send('Could not perform get request to find case number');
     })
 
 
