@@ -98,7 +98,7 @@ app.get('/neighborhoods', (req, res) => {
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-    let query = 'SELECT * FROM Incidents'; //WHERE code > value
+    let query = 'SELECT * FROM Incidents';
     let input = " WHERE ("
 
     //Currently hard coded limit
@@ -167,65 +167,76 @@ app.get('/incidents', (req, res) => {
 app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
-    //Insert: case_number, see if that that case number does not exist, then add date_time, code, incident, police_grid, neighborhood_number, block
     let params = [];
+    let count = 0;
     let get = '';
     let put = '';
-    if(req.query.hasOwnProperty('case')) {
-        get = 'SELECT * FROM Incidents WHERE case = ?';
-        put = 'INSERT INTO Tncidents VALUES (' + req.query.case;
+    let columns = '';
+    let values = '';
+    let date = '';
+    let time = '';
 
-        params.push(req.query.case);
-        if(req.query.hasOwnProperty('date') && req.query.hasOwnProperty('time')){
-            put += ', ' + req.query.date + req.query.time;
-            params.push(req.query.date);
-            params.push(req.query.time);
-        }
-        if(req.query.hasOwnProperty('code')){
-            put += ", " + req.query.code;
-            params.push(req.query.code);
-        }
-        if(req.query.hasOwnProperty('incident')){
-            put += ", " + req.query.incident;
-            params.push(req.query.incident);
-        }
-        if(req.query.hasOwnProperty('police_grid')){
-            put += ", " + req.query.police_grid;
-            params.push(req.query.date);
-        }
-        if(req.query.hasOwnProperty('neighborhood_number')){
-            put += ", " + req.query.neighborhood_number;
-            params.push(req.query.neighborhood_number);
-        }
-        if(req.query.hasOwnProperty('block')){
-            put += ", " + req.query.block;
-            params.push(req.query.block);
-        }
-        put += ');';
-        if(params.length!= 8){
-            //must provide all fields: case, date, time, code, incident, police_grid, incident_number, and block
+    for([key, value] of Object.entries(req.body)){
+        if(key == 'case_number') {
+            get = 'SELECT * FROM Incidents WHERE "case_number" = ' + value + ";";
+            columns += key + ", ";
+            values += value + ", ";
+            count++;
+        } else if(key == 'date'){
+            date = value;
+            count++;
+        } else if(key == 'time'){
+            time = value;
+            count++;
+        } else if(key == 'code'){
+            count++;
+            columns += key + ", ";
+            values += value + ", ";
+        } else if(key == 'incident'){
+            count++;
+            columns += key + ", ";
+            values += "\"" + value + "\", ";
+        } else if(key == 'police_grid'){
+            count++;
+            columns += key + ", ";
+            values += value + ", ";
+        } else if(key == 'neighborhood_number'){
+            count++;
+            columns += key + ", ";
+            values += value + ", ";
+        } else if(key == 'block'){
+            count++;
+            columns += key + ", ";
+            values += "\"" + value + "\", ";
         }
 
-    } else {
-        //throw error and say must provide case number
     }
+
+    console.log(count);
+    if(count < 8){
+        res.status(500).type('txt').send('Must provide all fields: case, date, time, code, incident, police_grid, incident_number, and block');
+    }
+    columns += 'date_time';
+    values += "\"" + date + 'T' + time + "\"";
+    put = 'INSERT INTO Incidents (' + columns + ') VALUES (' + values + ');';
 
     databaseSelect(get, [])
     .then((data) =>{
-        console.log(data);
-        //if not already in table add it
-        // databaseRun(put, [])
-        // .then((data) =>{
-        //     console.log(data);
-        //     res.status(200).type('json').send(data);
-        // })
-        // .catch((err) => {
-        //     res.status(200).type('txt').send('Failed to add new incident ', err);
-        // })
+        if(data.length==0){
+            databaseRun(put, [])
+            .then(() =>{
+                res.status(200).type('json').send("Case has been added to the database.");
+            })
+            .catch((err) => {
+                res.status(500).type('txt').send('Failed to add new incident ', err);
+            })
+        } else {
+            res.status(200).type('txt').send('Incident with case number has already been added.');
+        }
 
     })
     .catch((err) => {
-        res.status(200).type('txt').send('Could not perform get request to find case number', err);
+         res.status(500).type('txt').send('Could not perform get request to find case number', err);
     })
 
 
