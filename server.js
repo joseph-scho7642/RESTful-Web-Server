@@ -66,14 +66,11 @@ app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     let query = 'SELECT * FROM Neighborhoods'; 
-    let input = " WHERE neighborhood_number ="; //WHERE code = value to get that exact code information
+    let input = " WHERE neighborhood_number = "; //WHERE code = value to get that exact code information
 
     for([key, value] of Object.entries(req.query)){
-        if(key == "id"){
+        if(key == "neighborhood_number"){
             let values = value.split(",");
-
-            console.log("Lets go!")
-
             for(i=0; i<values.length; i++){
                 query = query + input + values[i];
                 //If there is more than one neighborhood contraint
@@ -117,7 +114,7 @@ app.get('/incidents', (req, res) => {
             }
             input = ") AND ("
         }
-        else if(key == "id"){
+        else if(key == "neighborhood_number"){
             let values = value.split(",");
             for(i=0; i<values.length; i++){
                 query = query + input + "neighborhood_number = " + values[i];
