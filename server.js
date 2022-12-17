@@ -250,9 +250,10 @@ app.put('/new-incident', (req, res) => {
 app.delete('/remove-incident', (req, res) => {
     console.log(req.body); // uploaded data
 
-    
+
+
     let query = 'DELETE FROM Incidents '; //Find the case number, and remove that entry
-    let input = ' WHERE case_number = '
+    let input = ' WHERE case_number = ';
 
     for([key, value] of Object.entries(req.query)){
         if(key == "case_number"){
@@ -282,13 +283,15 @@ app.delete('/remove-incident', (req, res) => {
     }
 
     //Test for if the case_number exists, if it does, do the rest of the work, otherwise, send error
-    databaseRun(query2, [])
+    databaseSelect(query2, [])
     .then((data) =>{
         console.log(data);
+        console.log("Inside delete check");
         //If the query did not find any results for the case_number value existing, go to else, if it is not 0 and found a value, delete the value.
         if(data != 0){
-            databaseSelect(query, [])
+            databaseRun(query, [])
             .then((data) =>{
+                console.log("Inside!");
                 console.log(data);
                 res.status(200).type('json').send(data);
             })
@@ -298,6 +301,7 @@ app.delete('/remove-incident', (req, res) => {
         } 
         //If the entry does not exist, send a STATUS 500
         else{
+
             res.status(200).type('html').send('STATUS 500: REJECTED! Not a valid entry.');    
         }
     })
