@@ -282,7 +282,7 @@ app.delete('/remove-incident', (req, res) => {
     }
 
     //Test for if the case_number exists, if it does, do the rest of the work, otherwise, send error
-    databaseSelect(query2, [])
+    databaseRun(query2, [])
     .then((data) =>{
         console.log(data);
         //If the query did not find any results for the case_number value existing, go to else, if it is not 0 and found a value, delete the value.
