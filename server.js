@@ -1,6 +1,7 @@
 // Built-in Node.js modules
 let fs = require('fs');
 let path = require('path');
+let cors = require('cors');
 
 // NPM modules
 let express = require('express');
@@ -13,6 +14,7 @@ let app = express();
 let port = 8000;
 
 app.use(express.json());
+app.use(cors());
 
 // Open SQLite3 database (in read-only mode)
 let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
@@ -144,6 +146,32 @@ app.get('/incidents', (req, res) => {
         }
         else if(key == 'end_date'){
             query = query + input + "date(date_time) <= "  + "'" +  value + "'";
+            input = ") AND (";
+        }
+        else if(key == 'filter') {
+            let values = value.split(",");
+            for(i=0; i<values.length; i++){
+                if(values[i] == "Homicide") {
+                    query = query + input + "code BETWEEN 100 AND 199";
+                }
+                else if(values[i] == "Assault") {
+                    query = query + input + "code BETWEEN 200 AND 299 OR code BETWEEN 400 AND 499 OR code BETWEEN 800 AND 899" ;
+                }
+                else if(values[i] == "Theft") {
+                    query = query + input + "code BETWEEN 300 AND 399 OR code BETWEEN 500 AND 799";
+                }
+                else if(values[i] == "PropertyDamage") {
+                    query = query + input + "code BETWEEN 900 AND 1499";
+                }
+                else if(values[i] == "Narcotics") {
+                    query = query + input + "code BETWEEN 1800 AND 1899";
+                }
+                else if(values[i] == "Weapons") {
+                    query = query + input + "code = 2619";
+                }
+                input = " OR ";
+            }
+            input = ") AND (";
         }
     }
 
@@ -153,7 +181,7 @@ app.get('/incidents', (req, res) => {
     // Set the limit
     query = query + " LIMIT " + limit;
 
-
+    console.log(query); 
     databaseSelect(query, [])
     .then((data) =>{
         data.forEach((item) => item["date"] = item.date_time.substring(0, 10)); 
