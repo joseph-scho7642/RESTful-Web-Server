@@ -9,13 +9,17 @@ let sqlite3 = require('sqlite3');
 
 
 let db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
+let public_dir = path.join(__dirname, 'public');
+
 
 let app = express();
 let port = 8000;
-app.use(cors())
 
+app.use(cors())
 app.use(express.json());
 app.use(cors());
+app.use(express.static(public_dir));
+
 
 // Open SQLite3 database (in read-only mode)
 let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
@@ -102,10 +106,10 @@ app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
     let query = 'SELECT * FROM Incidents';
-    let input = " WHERE ("
+    let input = " WHERE (";
 
     //Currently hard coded limit
-    let limit = 1000
+    let limit = 1000;
 
     for([key, value] of Object.entries(req.query)){
         if(key == "code"){
